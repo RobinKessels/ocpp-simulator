@@ -11,8 +11,7 @@ services:
     build:
       context: ./client/v21
       dockerfile: Dockerfile
-    container_name: wallbox_simulator
     depends_on:
       - ocpp-server
     environment:
-      - CSMS_URL=ws://ocpp-server:9000/CP_1
+      - CSMS_URL=ws://ocpp-server:9000

@@ -15,51 +15,45 @@ logger = logging.getLogger("charge_point")
 
 class ChargePoint(cp):
     async def send_heartbeat(self, interval):
-        logger.info(f"[{self.id}] Starting heartbeat loop. Interval: {interval}s")
-        request = call.Heartbeat()
-        while True:
-            await self.call(request)
-            await asyncio.sleep(interval)
-
-    async def send_heartbeat(self, interval):
         """background task to send heartbeats at the interval defined by the csms."""
         logger.info(f"[{self.id}] starting heartbeat loop. interval: {interval}s")
         try:
-            while true:
-                request = call.heartbeat()
+            while True:
+                request = call.Heartbeat()
                 await self.call(request)
                 logger.debug(f"[{self.id}] heartbeat sent.")
                 await asyncio.sleep(interval)
-        except exception as e:
+        except Exception as e:
             logger.error(f"[{self.id}] heartbeat loop interrupted: {e}")
 
+    async def send_boot_notification(self):
+        logger.info(f"[{self.id}] Sending BootNotification...")
 
-async def send_boot_notification(self):
-    logger.info(f"[{self.id}] Sending BootNotification...")
+        request = call.BootNotification(
+            charging_station=ChargingStationType(
+                model="Wallbox XYZ", vendor_name="acme"
+            ),
+            reason="PowerUp",
+        )
 
-    request = call.BootNotification(
-        charging_station=ChargingStationType(model="Wallbox XYZ", vendor_name="acme"),
-        reason="PowerUp",
-    )
-
-    try:
-        response = await self.call(request)
-
-        if response.status == "Accepted":
-            logger.info(f"[{self.id}] Registration ACCEPTED by Central System.")
-            # Start the heartbeat loop using the interval provided by the server
-            await self.send_heartbeat(response.interval)
-        else:
-            logger.warning(
-                f"[{self.id}] Registration {response.status}. Closing connection."
-            )
-    except Exception as e:
-        logger.error(f"[{self.id}] Error during BootNotification: {e}")
+        try:
+            response = await self.call(request)
+            if response.status == "Accepted":
+                logger.info(f"[{self.id}] Registration ACCEPTED by Central System.")
+                # Start the heartbeat loop using the interval provided by the server
+                await self.send_heartbeat(response.interval)
+            else:
+                logger.warning(
+                    f"[{self.id}] Registration {response.status}. Closing connection."
+                )
+        except Exception as e:
+            logger.error(f"[{self.id}] Error during BootNotification: {e}")
 
 
 async def main():
-    # URL prioritization: ENV variable > Localhost
-    url = os.getenv("CSMS_URL", "ws://localhost:9000/CP_1")
+    unique_id = os.getenv("HOSTNAME") or socket.gethostname() or "unknown_cp"
+    base_url = os.getenv("CSMS_URL", "ws://localhost:9000/CP_1")
+    url = f"{base_url}/{unique_id}"
     logger.info(f"Attempting connection to Central System: {url}")
 
     try:
