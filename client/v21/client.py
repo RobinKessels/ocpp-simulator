@@ -2,6 +2,7 @@ import asyncio
 import logging
 import websockets
 import os
+import uuid
 
 from ocpp.v21 import ChargePoint as cp
 from ocpp.v21 import call
@@ -51,7 +52,7 @@ class ChargePoint(cp):
 
 
 async def main():
-    unique_id = os.getenv("HOSTNAME") or socket.gethostname() or "unknown_cp"
+    unique_id = f"CP_{uuid.uuid4().hex[:6]}"
     base_url = os.getenv("CSMS_URL", "ws://localhost:9000/CP_1")
     url = f"{base_url}/{unique_id}"
     logger.info(f"Attempting connection to Central System: {url}")
