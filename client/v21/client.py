@@ -15,40 +15,68 @@ logger = logging.getLogger("charge_point")
 
 class ChargePoint(cp):
     async def send_heartbeat(self, interval):
+        logger.info(f"[{self.id}] Starting heartbeat loop. Interval: {interval}s")
         request = call.Heartbeat()
         while True:
             await self.call(request)
             await asyncio.sleep(interval)
 
-    async def send_boot_notification(self):
-        print("Sending boot notification..")
-        request = call.BootNotification(
-            charging_station=ChargingStationType(
-                model="Wallbox XYZ", vendor_name="acme"
-            ),
-            reason="PowerUp",
-        )
+    async def send_heartbeat(self, interval):
+        """background task to send heartbeats at the interval defined by the csms."""
+        logger.info(f"[{self.id}] starting heartbeat loop. interval: {interval}s")
+        try:
+            while true:
+                request = call.heartbeat()
+                await self.call(request)
+                logger.debug(f"[{self.id}] heartbeat sent.")
+                await asyncio.sleep(interval)
+        except exception as e:
+            logger.error(f"[{self.id}] heartbeat loop interrupted: {e}")
+
+
+async def send_boot_notification(self):
+    logger.info(f"[{self.id}] Sending BootNotification...")
+
+    request = call.BootNotification(
+        charging_station=ChargingStationType(model="Wallbox XYZ", vendor_name="acme"),
+        reason="PowerUp",
+    )
+
+    try:
         response = await self.call(request)
 
         if response.status == "Accepted":
-            print("Connected to central system.")
+            logger.info(f"[{self.id}] Registration ACCEPTED by Central System.")
+            # Start the heartbeat loop using the interval provided by the server
             await self.send_heartbeat(response.interval)
+        else:
+            logger.warning(
+                f"[{self.id}] Registration {response.status}. Closing connection."
+            )
+    except Exception as e:
+        logger.error(f"[{self.id}] Error during BootNotification: {e}")
 
 
 async def main():
+    # URL prioritization: ENV variable > Localhost
     url = os.getenv("CSMS_URL", "ws://localhost:9000/CP_1")
-    logger.info(f"Connecting to Central System at: {url}")
+    logger.info(f"Attempting connection to Central System: {url}")
+
     try:
         async with websockets.connect(url, subprotocols=["ocpp2.1"]) as ws:
-            logger.info("WebSocket connection established.")
-            charge_point = ChargePoint("CP_1", ws)
+            logger.info(f"WebSocket connected to {url}")
+
+            # Create the CP instance with the unique ID from the URL path
+            cp_id = url.split("/")[-1]
+            charge_point = ChargePoint(cp_id, ws)
+
             await asyncio.gather(
                 charge_point.start(), charge_point.send_boot_notification()
             )
     except ConnectionRefusedError:
-        logger.error(f"Connection refused. Is the server running at {url}?")
+        logger.error(f"Connection refused. Ensure the CSMS is running at {url}")
     except Exception as e:
-        logger.error(f"Connection failed: {e}")
+        logger.error(f"An unexpected error occurred: {e}")
 
 
 if __name__ == "__main__":
