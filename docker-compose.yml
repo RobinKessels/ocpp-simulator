@@ -1,0 +1,18 @@
+services:
+  ocpp-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: csms_central_system
+    ports:
+      - "9000:9000"
+
+  ocpp-client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: wallbox_simulator
+    depends_on:
+      - ocpp-server
+    environment:
+      - CSMS_URL=ws://ocpp-server:9000/CP_1
