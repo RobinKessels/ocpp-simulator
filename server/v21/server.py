@@ -8,7 +8,10 @@ from ocpp.v21 import ChargePoint as cp
 from ocpp.v21 import call_result
 from ocpp.v21.enums import Action
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger("ocpp_server")
 
 
 class ChargePoint(cp):
@@ -58,7 +61,6 @@ async def on_connect(websocket):
 
 
 async def main():
-    #  deepcode ignore BindToAllNetworkInterfaces: <Example Purposes>
     server = await websockets.serve(
         on_connect, "0.0.0.0", 9000, subprotocols=["ocpp2.1"]
     )
@@ -68,5 +70,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    # asyncio.run() is used when running this example with Python >= 3.7v
     asyncio.run(main())
