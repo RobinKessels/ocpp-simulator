@@ -1,0 +1,60 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- Virtual Environments ---
+.venv
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# --- Environment Variables (Security!) ---
+# Never commit your CSMS credentials or secret keys
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# --- Docker ---
+# Ignore data persisted by docker volumes if they are mapped locally
+.docker/
+# If you use a local database via Docker, ignore the data folder
+**/data/
+
+# --- Logging & Debugging ---
+*.log
+ocpp_server.log
+charge_point.log
+.history/
+
+# --- IDEs ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- OS Related ---
+.DS_Store
+Thumbs.db

@@ -1,4 +1,16 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: csms_postgres
+    environment:
+      - POSTGRES_DB=csms
+      - POSTGRES_USER=csms
+      - POSTGRES_PASSWORD=csms
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+
   ocpp-server:
     build:
       context: ./server/v21
@@ -6,6 +18,23 @@ services:
     container_name: csms_central_system
     ports:
       - "9000:9000"
+      - "8000:8000"
+    environment:
+      - SITE_MAX_AMPS=64
+      - PER_EVSE_MAX_AMPS=16
+      - CSMS_DB_PATH=/app/data/csms.db
+    volumes:
+      - ./data:/app/data
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: csms_frontend
+    depends_on:
+      - ocpp-server
+    ports:
+      - "8081:80"
 
   ocpp-client:
     build:
@@ -13,5 +42,8 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - ocpp-server
+      - postgres
     environment:
       - CSMS_URL=ws://ocpp-server:9000
+      - CSMS_API_URL=http://ocpp-server:8000
+      - RETRY_SECONDS=3

@@ -1,2 +1,4 @@
 ocpp
 websockets
+fastapi
+uvicorn

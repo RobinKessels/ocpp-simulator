@@ -1,0 +1,15 @@
+body { font-family: Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 16px; color: #1f2937; }
+h1 { margin: 0 0 12px 0; font-size: 22px; }
+.row { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+button { border: 0; padding: 8px 12px; border-radius: 8px; cursor: pointer; background: #2563eb; color: white; }
+button.stop { background: #dc2626; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 12px; }
+.card { background: white; border-radius: 10px; padding: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.station-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+.station-amps { font-weight: 700; color: #1d4ed8; background: #dbeafe; border-radius: 999px; padding: 4px 10px; }
+.evse-grid { display: grid; grid-template-columns: repeat(2, minmax(160px, 1fr)); gap: 10px; margin-top: 6px; }
+.evse { border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; background: #fafafa; }
+.evse-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.amps-badge { font-weight: 700; color: #1d4ed8; background: #dbeafe; border-radius: 999px; padding: 3px 8px; font-size: 12px; }
+.muted { color: #6b7280; font-size: 12px; }
+.ok { color: #059669; font-weight: 700; }
